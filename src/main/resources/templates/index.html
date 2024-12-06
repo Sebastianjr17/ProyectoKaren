@@ -1,0 +1,437 @@
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transpiedecuesta - Gestión de Documentos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Oswald', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+			background-color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .navbar .logo img {
+            height: 45px;
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+			background-color: white;
+            color: #333;
+            height: 250px;
+            margin-top: 70px;
+            padding: 30px;
+        
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: #555;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            color: #e67e22;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .folder-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .folder {
+            background-color: #f9e3b4;
+            color: #333;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+			height: 150px; /* Ajusta la altura de las carpetas */
+        }
+
+        .folder:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .folder i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #e67e22;
+        }
+
+        .folder p {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .folder .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .folder .actions i {
+            font-size: 25px;
+            cursor: pointer;
+            color: #e67e22;
+        }
+
+        .upload-form {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 30px auto;
+        }
+
+        .upload-form h2 {
+            color: #e67e22;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .upload-form input,
+        .upload-form select,
+        .upload-form button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        .upload-form button {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .upload-form button:hover {
+            background-color: #d35400;
+        }
+
+        #document-list {
+            margin-top: 40px;
+        }
+
+        #document-list div {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #document-list button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #e67e22;
+            color: white;
+        }
+
+        #document-list button:hover {
+            background-color: #d35400;
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .folder-list {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://transpiedecuesta.com/wp-content/uploads/2020/04/logo.png" alt="Logo de Transpiedecuesta">
+        </div>
+    </nav>
+
+    <section class="hero">   
+        <h1>Transpiedecuesta - Gestión de Documentos</h1>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title">Carpetas</h2>
+        <div class="folder-list" id="folder-list">
+            <!-- Folders will be displayed here -->
+        </div>
+
+        <div class="upload-form">
+            <h2>Crear Carpeta</h2>
+            <input type="text" id="folder-name">
+            <button onclick="addFolder()">Crear</button>
+        </div>
+
+        <div class="upload-form">
+            <h2>Subir Documento</h2>
+            <form id="upload-form">
+                <select id="folder" required>
+                    <option value="">Seleccionar Carpeta</option>
+                </select>
+                <input type="file" id="file" required>
+                <button type="submit">Subir</button>
+            </form>
+        </div>
+
+        <div id="document-list">
+            <!-- Documents will be displayed here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Transpiedecuesta. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        let folders = JSON.parse(localStorage.getItem('folders')) || [];
+        let documents = JSON.parse(localStorage.getItem('documents')) || [];
+
+        function displayFolders() {
+            const folderList = document.getElementById('folder-list');
+            folderList.innerHTML = '';
+            folders.forEach((folder) => {
+                const folderDiv = document.createElement('div');
+                folderDiv.classList.add('folder');
+                folderDiv.innerHTML = `
+                    <i class="fas fa-folder"></i>
+                    <p>${folder.name}</p>
+                    <div class="actions">
+                        <i class="fas fa-edit" onclick="event.stopPropagation(); editFolder('${folder.id}')"></i>
+                        <i class="fas fa-trash" onclick="event.stopPropagation(); deleteFolder('${folder.id}')"></i>
+                    </div>
+                `;
+                folderDiv.addEventListener('click', () => showDocuments(folder.id));
+                folderList.appendChild(folderDiv);
+            });
+            updateFolderOptions();
+        }
+
+        function updateFolderOptions() {
+            const folderSelect = document.getElementById('folder');
+            folderSelect.innerHTML = '<option value="">Seleccionar Carpeta</option>';
+            folders.forEach((folder) => {
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.name;
+                folderSelect.appendChild(option);
+            });
+        }
+
+        function addFolder() {
+            const folderName = document.getElementById('folder-name').value;
+            if (folderName.trim() === '') {
+                alert('Por favor, ingresa un nombre para la carpeta.');
+                return;
+            }
+            const newFolder = {
+                id: 'folder-' + Date.now(),
+                name: folderName
+            };
+            folders.push(newFolder);
+            localStorage.setItem('folders', JSON.stringify(folders));
+            displayFolders();
+            document.getElementById('folder-name').value = '';
+        }
+
+        function editFolder(folderId) {
+            const newName = prompt("Editar nombre de carpeta:");
+            if (newName && newName.trim() !== '') {
+                const folderIndex = folders.findIndex(f => f.id === folderId);
+                if (folderIndex !== -1) {
+                    folders[folderIndex].name = newName;
+                    localStorage.setItem('folders', JSON.stringify(folders));
+                    displayFolders();
+                }
+            }
+        }
+
+        function deleteFolder(folderId) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta carpeta?")) {
+                folders = folders.filter(f => f.id !== folderId);
+                documents = documents.filter(d => d.folderId !== folderId);
+                localStorage.setItem('folders', JSON.stringify(folders));
+                localStorage.setItem('documents', JSON.stringify(documents));
+                displayFolders();
+                document.getElementById('document-list').innerHTML = '';
+            }
+        }
+
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const folderId = document.getElementById('folder').value;
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+
+            if (!folderId) {
+                alert('Por favor selecciona una carpeta.');
+                return;
+            }
+
+            if (!file) {
+                alert('Por favor selecciona un archivo.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const newDocument = {
+                    id: 'doc-' + Date.now(),
+                    folderId: folderId,
+                    name: file.name,
+                    type: file.type,
+                    content: e.target.result
+                };
+
+                documents.push(newDocument);
+                localStorage.setItem('documents', JSON.stringify(documents));
+                showDocuments(folderId);
+                fileInput.value = '';
+                alert('Documento subido exitosamente.');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function showDocuments(folderId) {
+            const documentList = document.getElementById('document-list');
+            documentList.innerHTML = '';
+            const folderDocuments = documents.filter(doc => doc.folderId === folderId);
+            const folderName = folders.find(f => f.id === folderId)?.name;
+            
+            if (folderDocuments.length === 0) {
+                documentList.innerHTML = `<h3>Carpeta: ${folderName}</h3><p>No hay documentos en esta carpeta.</p>`;
+                return;
+            }
+
+            const docContainer = document.createElement('div');
+            docContainer.innerHTML = `<h3>Documentos en ${folderName}:</h3>`;
+            
+            folderDocuments.forEach((doc) => {
+                const docElement = document.createElement('div');
+                docElement.innerHTML = `
+                    <p><strong>${doc.name}</strong></p>
+                    <button onclick="downloadDocument('${doc.id}')">Descargar</button>
+                    <button onclick="editDocument('${doc.id}')">Editar</button>
+                    <button onclick="deleteDocument('${doc.id}')">Eliminar</button>
+                `;
+                docContainer.appendChild(docElement);
+            });
+            
+            documentList.appendChild(docContainer);
+        }
+
+        function downloadDocument(docId) {
+            const doc = documents.find(d => d.id === docId);
+            if (doc) {
+                const link = document.createElement('a');
+                link.href = doc.content;
+                link.download = doc.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        function editDocument(docId) {
+            const newName = prompt("Editar nombre del documento:");
+            if (newName && newName.trim() !== '') {
+                const docIndex = documents.findIndex(d => d.id === docId);
+                if (docIndex !== -1) {
+                    documents[docIndex].name = newName;
+                    localStorage.setItem('documents', JSON.stringify(documents));
+                    showDocuments(documents[docIndex].folderId);
+                }
+            }
+        }
+
+        function deleteDocument(docId) {
+            if (confirm("¿Estás seguro de que deseas eliminar este documento?")) {
+                const doc = documents.find(d => d.id === docId);
+                const folderId = doc.folderId;
+                documents = documents.filter(d => d.id !== docId);
+                localStorage.setItem('documents', JSON.stringify(documents));
+                showDocuments(folderId);
+            }
+        }
+
+        // Initialize the application
+        displayFolders();
+    </script>
+</body>
+</html>
